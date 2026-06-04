@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from pathlib import Path
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from sklearn.metrics import f1_score, precision_recall_fscore_support, classification_report, confusion_matrix
 
 from utils import (bce_dice_loss, compute_batch_metrics, calculate_dataset_pos_weight,
