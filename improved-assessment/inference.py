@@ -360,10 +360,10 @@ def run_inference(
     cls_ckpt: Path,
     device: torch.device,
     seg_input: int    = 1380,
-    seg_stride: int   = None,
-    seg_scales        = (1.0, 1.2),
-    seg_thr: float    = 0.35,
-    min_component: int = 64,
+    seg_stride: int   = 345,
+    seg_scales        = (0.75, 1.0, 1.2),
+    seg_thr: float    = 0.30,
+    min_component: int = 32,
     split_touching_flag: bool = True,
     use_densecrf: bool = True,
     crf_kwargs: dict  = None,
@@ -376,7 +376,7 @@ def run_inference(
     occ_min: float    = 0.05,
     use_ecc_align: bool = True,
     wat_r: int        = 11,
-    wat_trel: float   = 0.35,
+    wat_trel: float   = 0.50,
 ):
     if seg_stride is None:
         seg_stride = seg_input // 2
