@@ -251,6 +251,46 @@ def siamese_predict(model, pre_crop: np.ndarray, post_crop: np.ndarray,
     return PRED_INDEX_TO_LABEL.get(raw, -1), float(probs.max().item())
 
 
+@torch.no_grad()
+def siamese_predict_multiscale(model, pre: np.ndarray, post: np.ndarray,
+                                lab: np.ndarray, k: int, stat,
+                                cls_input: int, device: torch.device,
+                                pad_ratios=(0.05, 0.15, 0.30),
+                                use_tta: bool = True,
+                                cls_use_mask: bool = True,
+                                mask_dilate: int = 5):
+    """
+    Crops the same building at multiple padding ratios, runs the model on each,
+    and averages logits before decoding. Makes classification robust to zoom/GSD
+    variation between training images and inference images.
+    """
+    all_logits = []
+    for pad in pad_ratios:
+        if cls_use_mask:
+            pre_c  = masked_crop(pre,  lab, k, stat, pad_ratio=pad,
+                                 out_size=cls_input, dilate=mask_dilate)
+            post_c = masked_crop(post, lab, k, stat, pad_ratio=pad,
+                                 out_size=cls_input, dilate=mask_dilate)
+        else:
+            pre_c  = crop_from_stat(pre,  stat, pad_ratio=pad, out_size=cls_input)
+            post_c = crop_from_stat(post, stat, pad_ratio=pad, out_size=cls_input)
+
+        A = to_tensor_norm(pre_c,  cls_input, device)
+        B = to_tensor_norm(post_c, cls_input, device)
+        outs = [model(A, B)]
+        if use_tta:
+            outs.append(model(torch.flip(A, [-1]), torch.flip(B, [-1])))
+            outs.append(model(torch.flip(A, [-2]), torch.flip(B, [-2])))
+            Ah = torch.flip(A, [-1]); Bh = torch.flip(B, [-1])
+            outs.append(model(torch.flip(Ah, [-2]), torch.flip(Bh, [-2])))
+        all_logits.append(torch.stack(outs, 0).mean(0))
+
+    logits = torch.stack(all_logits, 0).mean(0)
+    probs  = torch.softmax(logits, dim=1).squeeze(0)
+    raw    = int(probs.argmax().item())
+    return PRED_INDEX_TO_LABEL.get(raw, -1), float(probs.max().item())
+
+
 # ============================================================
 # Crop helpers
 # ============================================================
@@ -332,7 +372,7 @@ def run_inference(
     use_tta_cls: bool = True,
     cls_use_mask: bool = True,
     mask_dilate: int  = 5,
-    crop_pad_ratio: float = 0.15,
+    crop_pad_ratios: tuple = (0.05, 0.15, 0.30),
     occ_min: float    = 0.05,
     use_ecc_align: bool = True,
     wat_r: int        = 11,
@@ -385,13 +425,14 @@ def run_inference(
             x, y, w, h, _ = stats[k]
             if binm[y:y+h, x:x+w].mean() < occ_min:
                 skipped += 1; continue
-            if cls_use_mask:
-                pre_c  = masked_crop(pre,  lab, k, stats[k], crop_pad_ratio, cls_input, mask_dilate)
-                post_c = masked_crop(post, lab, k, stats[k], crop_pad_ratio, cls_input, mask_dilate)
-            else:
-                pre_c  = crop_from_stat(pre,  stats[k], crop_pad_ratio, cls_input)
-                post_c = crop_from_stat(post, stats[k], crop_pad_ratio, cls_input)
-            cid, cf = siamese_predict(cls, pre_c, post_c, cls_input, device, use_tta_cls)
+            cid, cf = siamese_predict_multiscale(
+                cls, pre, post, lab, k, stats[k],
+                cls_input=cls_input, device=device,
+                pad_ratios=crop_pad_ratios,
+                use_tta=use_tta_cls,
+                cls_use_mask=cls_use_mask,
+                mask_dilate=mask_dilate,
+            )
             cls_by_id[k] = cid; kept += 1; confs.append(cf)
 
         vis   = draw_perimeters(post, lab, cls_by_id, thick=2)
