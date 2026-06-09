@@ -1,4 +1,4 @@
- """
+"""
 Full inference pipeline: sliding-window TTA segmentation (TTASeg) + DenseCRF refinement
 + Siamese classifier per building instance → colour-coded damage overlay.
 """
