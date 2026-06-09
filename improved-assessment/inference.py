@@ -367,9 +367,9 @@ def run_inference(
     seg_input: int    = 1380,
     seg_stride: int   = None,
     seg_scales        = (1.0, 1.2),
-    seg_thr: float    = 0.35,
-    min_component: int = 64,
-    split_touching_flag: bool = True,
+    seg_thr: float    = 0.25,
+    min_component: int = 100,
+    split_touching_flag: bool = False,
     use_densecrf: bool = True,
     crf_kwargs: dict  = None,
     cls_backbone: str = "resnet50",
@@ -381,7 +381,7 @@ def run_inference(
     occ_min: float    = 0.05,
     use_ecc_align: bool = True,
     wat_r: int        = 11,
-    wat_trel: float   = 0.35,
+    wat_trel: float   = 0.60,
 ):
     if seg_stride is None:
         seg_stride = seg_input // 2
