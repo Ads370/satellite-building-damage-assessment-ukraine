@@ -21,9 +21,8 @@ from albumentations import CropNonEmptyMaskIfExists
 from albumentations.pytorch import ToTensorV2
 
 
-# ============================================================
-# Shared split config & manifest splitter
-# ============================================================
+
+# -----Shared split config & manifest splitter-----
 
 @dataclass
 class SplitConfig:
@@ -50,9 +49,8 @@ def split_manifest(df: pd.DataFrame, cfg: SplitConfig):
     return df.iloc[list(train_idx)].reset_index(drop=True), df.iloc[list(val_idx)].reset_index(drop=True)
 
 
-# ============================================================
-# Segmentation dataset
-# ============================================================
+#------Segmentation dataset------
+
 
 class XBDDatasetFixed(Dataset):
     """Loads pre-disaster image + binary mask; supports CNEMIE crop strategy."""
@@ -98,9 +96,9 @@ class XBDDatasetFixed(Dataset):
         return img_t, msk_t
 
 
-# ============================================================
-# Segmentation transforms
-# ============================================================
+
+#-----Segmentation transforms-----
+
 
 IMG_SIZE_XBD = 512
 IMG_SIZE_UKR = 1024
@@ -190,9 +188,9 @@ def make_val_transform_ukr():
     ])
 
 
-# ============================================================
-# Segmentation loaders
-# ============================================================
+
+# -----Segmentation loaders-----
+
 
 def build_loaders_xbd(train_df, val_df, device, batch_size: int = 8, num_workers: int = 4):
     train_ds = XBDDatasetFixed(train_df, make_train_transform_xbd(),
@@ -218,9 +216,9 @@ def build_loaders_ukr(train_df, val_df, device, batch_size: int = 4, num_workers
     return train_loader, val_loader
 
 
-# ============================================================
-# Segmentation manifest builders
-# ============================================================
+
+# -----Segmentation manifest builders-----
+
 
 def build_xbd_manifest(images_dir: str, masks_dir: str, out_csv: str, val_frac: float = 0.20):
     """Build manifest.csv pairing pre-disaster images with their binary masks."""
@@ -297,9 +295,8 @@ def build_kolega_seg_manifest(root_dir: str, cities, split_map: dict, out_csv: s
     return df
 
 
-# ============================================================
-# Classification dataset & augmentations
-# ============================================================
+
+#-----Classification dataset & augmentations-----
 
 LABEL_MAP = {"no-damage": 0, "minor-damage": 1, "major-damage": 2, "destroyed": 3}
 CLASS_NAMES = ["no-damage", "minor-damage", "major-damage", "destroyed"]
@@ -493,9 +490,9 @@ class SiamesePairs(Dataset):
         return pre, post, int(r.label_id)
 
 
-# ============================================================
-# Classification loaders / samplers
-# ============================================================
+
+# -----Classification loaders / samplers-----
+
 
 def make_splits(manifest: str, seed: int = 42):
     df = pd.read_csv(manifest)
@@ -551,9 +548,9 @@ def make_loaders(df_tr, df_va, df_te, train_pair_tf, eval_tf, batch, num_workers
     return loader_tr, loader_va, loader_te, ds_te
 
 
-# ============================================================
-# Classification manifest builder (Ukraine / Kolega)
-# ============================================================
+
+# -----Classification manifest builder (Ukraine / Kolega)------
+
 
 def build_kolega_cls_manifest(root: Path) -> pd.DataFrame:
     """Build classification manifest from Ukraine crop dataset (fold-based CSV structure)."""
