@@ -4,9 +4,9 @@ import torch.nn.functional as F
 import torchvision.models as models
 
 
-# ============================================================
-# Shared building block
-# ============================================================
+
+# -----Shared building block-----
+
 
 class DoubleConv(nn.Module):
     def __init__(self, in_ch: int, out_ch: int):
@@ -22,9 +22,9 @@ class DoubleConv(nn.Module):
         return self.block(x)
 
 
-# ============================================================
-# Segmentation: ResU-Net (resnet34 / resnet50 backbone)
-# ============================================================
+
+# -----Segmentation: ResU-Net (resnet34 / resnet50 backbone)------
+
 
 class ResUNet(nn.Module):
     def __init__(self, n_classes: int = 1, backbone: str = "resnet34", pretrained: bool = True):
@@ -74,9 +74,9 @@ class ResUNet(nn.Module):
         return F.interpolate(out, size=x.shape[2:], mode="bilinear", align_corners=False)
 
 
-# ============================================================
-# Classification: Siamese ResNet (late fusion)
-# ============================================================
+
+# -----Classification: Siamese ResNet (late fusion)-----
+
 
 class SiameseResNet(nn.Module):
     """Late-fusion Siamese network: encodes pre/post independently, fuses via [f0, f1, |f1-f0|, f0*f1]."""
@@ -110,9 +110,9 @@ class SiameseResNet(nn.Module):
         return self.head(z)
 
 
-# ============================================================
-# Classification: Early-Fusion ResNet (6-channel input)
-# ============================================================
+
+# -----Classification: Early-Fusion ResNet (6-channel input)-----
+
 
 class EarlyFusionResNet(nn.Module):
     """Early-fusion: concatenates pre+post (and optionally |post-pre|) into a 6- or 9-channel input."""
@@ -156,9 +156,9 @@ class EarlyFusionResNet(nn.Module):
         return self.head(self.encoder(x).flatten(1))
 
 
-# ============================================================
-# Losses
-# ============================================================
+
+# -----Losses-----
+
 
 class FocalLoss(nn.Module):
     """Multi-class focal loss with optional per-class alpha weighting."""
