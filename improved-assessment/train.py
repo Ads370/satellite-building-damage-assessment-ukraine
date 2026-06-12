@@ -24,9 +24,9 @@ from dataset import (SplitConfig, split_manifest, XBDDatasetFixed,
 from eval import best_threshold_on_val
 
 
-# ============================================================
-# Segmentation: shared helper
-# ============================================================
+
+# -----Segmentation: shared helper------
+
 
 def _postproc_batch(preds_bin_np: np.ndarray, min_component: int = 64) -> np.ndarray:
     import cv2
@@ -45,9 +45,9 @@ def _postproc_batch(preds_bin_np: np.ndarray, min_component: int = 64) -> np.nda
     return out
 
 
-# ============================================================
-# Segmentation training (works for both XBD and Ukraine)
-# ============================================================
+
+# -----Segmentation training (works for both XBD and Ukraine)-----
+
 
 def train_single_manifest(
     manifest_csv: str,
@@ -184,9 +184,9 @@ def train_single_manifest(
     return model, train_loader, val_loader, best_iou, best_epoch
 
 
-# ============================================================
-# Classification training (Phase 1: XBD crops)
-# ============================================================
+
+# -----Classification training (Phase 1: XBD crops)-----
+
 
 def _run_epoch_cls(model, loader, optimizer, criterion, scaler, device,
                    train=True, accum_steps=1, desc="Train", tta_fn=None, max_steps=None):
@@ -378,9 +378,9 @@ def train_one_run(run_dir: Path, cfg: dict, device: torch.device, splits=None):
                 test_acc=float(te_acc), ckpt=str(CKPT), config=cfg)
 
 
-# ============================================================
-# Classification fine-tuning (Phase 2: Ukraine / Kolega)
-# ============================================================
+
+# -----Classification fine-tuning (Phase 2: Ukraine / Kolega)-----
+
 
 def tta_forward_8view(model, pre, post):
     """8-view TTA: 4 rotations × hflip."""
