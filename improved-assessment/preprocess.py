@@ -25,9 +25,9 @@ LABEL_NAME_TO_NUM = {
 }
 
 
-# ============================================================
-# Polygon parsing helpers
-# ============================================================
+
+# -----Polygon parsing helpers-----
+
 
 def _scale_if_normalized(coords, W, H):
     xs = [c[0] for c in coords]; ys = [c[1] for c in coords]
@@ -97,9 +97,9 @@ def _yield_polys_xbd(label_json, W, H):
                 yield outer, holes, props.get("subtype", "no-damage")
 
 
-# ============================================================
-# Rasterisation
-# ============================================================
+
+# -----Rasterisation-----
+
 
 def _rasterize_tile(label_path, image_path, out_path, binary=True):
     with Image.open(image_path) as im:
@@ -142,9 +142,9 @@ def rasterize_xbd_labels(labels_dir: str, images_dir: str, out_dir: str):
     print(f"Rebuilt: {rebuilt} | non-empty: {nonempty} → {out_dir}")
 
 
-# ============================================================
-# Mask normalisation
-# ============================================================
+
+# -----Mask normalisation-----
+
 
 def normalise_masks(src_dir: str, images_dir: str, dst_dir: str):
     """
@@ -183,9 +183,9 @@ def normalise_masks(src_dir: str, images_dir: str, dst_dir: str):
     print(f"  Resized: {resized} | Auto-inverted: {inverted}")
 
 
-# ============================================================
-# XBD classification crop pipeline
-# ============================================================
+
+# -----XBD classification crop pipeline-----
+
 
 def _is_stub(name: str) -> bool:
     return name.startswith("._") or name == "__MACOSX"
