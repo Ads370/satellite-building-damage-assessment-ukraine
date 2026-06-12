@@ -19,9 +19,9 @@ from sklearn.metrics import (
 from utils import denorm_batch, IMAGENET_MEAN, IMAGENET_STD
 
 
-# ============================================================
-# Segmentation evaluation
-# ============================================================
+
+# -----Segmentation evaluation------
+
 
 @torch.no_grad()
 def evaluate_on_loader_fast(model, loader, device, threshold: float = 0.5) -> Dict[str, float]:
@@ -222,9 +222,9 @@ def run_test_block_with_loading(ckpt_path, model_class, model_kwargs, device,
     return run_test_block_optimized(model, device, val_loader, test_loader, sweep_on_val, n_vis, save_dir)
 
 
-# ============================================================
-# Classification evaluation
-# ============================================================
+
+# -----Classification evaluation-----
+
 
 CLASS_NAMES = ["no-damage", "minor-damage", "major-damage", "destroyed"]
 NUM_CLASSES  = len(CLASS_NAMES)
