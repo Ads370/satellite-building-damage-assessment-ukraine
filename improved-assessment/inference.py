@@ -29,9 +29,9 @@ UNK_COLOR    = (220, 220, 220)
 PRED_INDEX_TO_LABEL = {3: 0, 2: 1, 0: 2, 1: 3}
 
 
-# ============================================================
-# Utilities
-# ============================================================
+
+# -----Utilities-----
+
 
 def parse_idx(p):
     nums = re.findall(r"\d+", Path(p).stem)
@@ -68,9 +68,9 @@ def to_tensor_norm(rgb: np.ndarray, size: int, device: torch.device) -> torch.Te
     return TF.normalize(t, IMAGENET_MEAN, IMAGENET_STD).unsqueeze(0).to(device)
 
 
-# ============================================================
-# Segmentation: sliding-window TTA
-# ============================================================
+
+# -----Segmentation: sliding-window TTA-----
+
 
 def _hann2d(h: int, w: int) -> np.ndarray:
     wy = np.hanning(h)[:, None]; wx = np.hanning(w)[None, :]
@@ -163,9 +163,9 @@ class TTASeg(nn.Module):
         return m.astype(np.uint8)
 
 
-# ============================================================
-# DenseCRF post-processing
-# ============================================================
+
+# -----DenseCRF post-processing-----
+
 
 def refine_with_densecrf(prob: np.ndarray, rgb: np.ndarray,
                          iters=5, sxy_gauss=3, compat_gauss=3,
@@ -199,9 +199,9 @@ def refine_with_densecrf(prob: np.ndarray, rgb: np.ndarray,
     return np.clip(q_fg, 0, 1).astype(np.float32)
 
 
-# ============================================================
-# Watershed touching-building splitter
-# ============================================================
+
+# -----Watershed touching-building splitter-----
+
 
 def split_touching(binary_mask: np.ndarray, prob: np.ndarray,
                    r: int = 11, t_rel: float = 0.35) -> np.ndarray:
@@ -225,9 +225,9 @@ def split_touching(binary_mask: np.ndarray, prob: np.ndarray,
     return (markers > 1).astype(np.uint8)
 
 
-# ============================================================
-# Classifier loading & per-instance prediction
-# ============================================================
+
+# -----Classifier loading & per-instance prediction-----
+
 
 def load_classifier(ckpt: Path, backbone: str, num_classes: int, device: torch.device) -> nn.Module:
     model = SiameseResNet(backbone=backbone, pretrained=False, num_classes=num_classes).to(device).eval()
@@ -296,9 +296,9 @@ def siamese_predict_multiscale(model, pre: np.ndarray, post: np.ndarray,
     return PRED_INDEX_TO_LABEL.get(raw, -1), float(probs.max().item())
 
 
-# ============================================================
-# Crop helpers
-# ============================================================
+
+# -----Crop helpers-----
+
 
 def _bbox_from_stat(stat, pad_ratio, H, W):
     x, y, w, h, _ = stat
@@ -323,9 +323,9 @@ def crop_from_stat(img, stat, pad_ratio=0.15, out_size=256):
     return cv2.resize(img[Y0:Y1+1, X0:X1+1], (out_size, out_size), interpolation=cv2.INTER_LINEAR)
 
 
-# ============================================================
-# Visualisation helpers
-# ============================================================
+
+# -----Visualisation helpers------
+
 
 GUTTER_PX    = 8
 GUTTER_COLOR = (255, 255, 255)
@@ -354,9 +354,9 @@ def stack3(a, b, c, gutter=GUTTER_PX, color=GUTTER_COLOR):
     return np.concatenate([a, spacer, b, spacer, c], axis=1)
 
 
-# ============================================================
-# Main inference loop
-# ============================================================
+
+# -----Main inference loop-----
+
 
 def run_inference(
     pre_dir: Path,
