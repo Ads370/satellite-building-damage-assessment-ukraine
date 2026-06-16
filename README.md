@@ -56,8 +56,7 @@ An end-to-end walkthrough of the work, in the order it was carried out.
 
 **6. Evaluation and a deliberate robustness probe.** Beyond per-class precision/recall, confusion matrices, and per-scene macro-F1 on curated data, the pipeline was run on raw, unprocessed Google Earth pre/post imagery to test real-world transfer. Performance dropped clearly here — documented rather than hidden — and is discussed in *Honest limitations* below.
 
-**7. Reproducibility and ethics throughout.** Fixed seeds, leakage-free spatial splits, validation-fixed thresholds, and logged manifests support reproducibility; coordinates, scene identifiers, and city-image mappings are withheld and figures cropped/anonymised, with outputs framed as analyst-supporting decision support rather than autonomous assessment.
-
+**7. Reproducibility and ethics throughout.** Leakage-free spatial splits, validation-fixed thresholds, and logged manifests support reproducibility; coordinates, scene identifiers, and city-image mappings are withheld and figures cropped/anonymised, with outputs framed as analyst-supporting decision support rather than autonomous assessment.
 ---
 ## Results
  
