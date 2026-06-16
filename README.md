@@ -40,7 +40,25 @@ satellite-building-damage-assessment-ukraine/
 - Organized code, methodology, and run/reproduce instructions → **[`improved-assessment/`](improved-assessment/)**.
 - Original submission as graded (with the full report PDF) → **[`damage-assessment/`](damage-assessment/)**.
 ---
- 
+## Project description
+
+An end-to-end walkthrough of the work, in the order it was carried out.
+
+**1. Framing.** The goal was a decision-support tool that produces building-level damage maps fast enough to matter in an active conflict, using the standard two-stage template from the literature (footprint segmentation, then per-building damage classification) and the xView2/xBD four-level taxonomy. Two formal targets were set up front — ≥ 0.65 mean IoU for segmentation and ≥ 0.70 macro-F1 for classification — and reported honestly against, met or not.
+
+**2. Data preparation.** Two datasets with deliberately distinct roles. **xBD** (xView2) supplied breadth for pretraining: ~850,000 annotated buildings across 19 disaster events. Polygon annotations were rasterised to binary masks (pixel-space WKT first, falling back to GeoJSON / image-space bounds), with a quality-control pass that flips rare inverted masks. **`damage_assessment_ukraine`** (KOlegaBB) supplied the conflict domain — three cities (Kamianka, Yakovlivka, Popasna), 169 segmentation tiles and 2,219 labelled building instances at ~0.33 m/px — used for fine-tuning and final evaluation. All splits were made at scene/fold level to prevent geographic leakage.
+
+**3. Stage 1 — footprint segmentation.** A **ResUNet with a ResNet-34 encoder** (ImageNet-initialised) was trained on xBD pre-event imagery with a weighted BCE + soft-Dice composite loss (λ = 0.5), foreground-aware cropping (Albumentations), and a controlled background-tile sampling rate. Training used AdamW, cosine annealing, mixed precision, and gradient clipping; the sigmoid decision threshold was swept on validation to maximise mean IoU (settling at t ≈ 0.90) and then frozen for testing to avoid optimistic bias. The model was then fine-tuned on the Ukraine folds at 1024×1024 with the encoder frozen for the first two epochs, lighter augmentation, and an optional morphological clean-up pass. Outcome: IoU improved from 0.568 (xBD val) to **0.593 / Dice 0.744** on the Ukraine test fold — short of the 0.65 target but sufficient to feed Stage 2.
+
+**4. Stage 2 — damage classification.** Building-centred pre/post crops were generated from xBD (post-event masks defining instance windows, sub-20-px fragments discarded, boxes enlarged 25% for context, resized to 256×256), yielding **107,004 paired crops** with the expected long tail (73,661 no-damage down to 9,315 destroyed). Two change-detection architectures were compared under identical conditions: an Early-Fusion baseline and a **Siamese U-Net (ResNet-50, shared weights)** with a late-fusion head combining state, absolute difference, and elementwise product. Severe imbalance was handled with three complementary mechanisms — Focal Loss, effective-number class weighting, and a tempered sampler (τ = 0.5) — with care taken not to double-count by stacking a weighted loss on top of the sampler. The Siamese model won (macro-F1 0.562 → **0.664** on xBD) and was selected as the main classifier.
+
+**5. Transfer to the conflict domain.** The best Siamese checkpoint was fine-tuned on `damage_assessment_ukraine` using a two-stage unfreezing schedule (head warm-up, then encoder unfrozen at a small encoder-to-head learning-rate ratio) to adapt features without erasing the xBD prior. Selection was on validation macro-F1 without TTA; the test fold was evaluated with flip-based test-time augmentation. A light post-hoc logit-bias calibration on the under-detected "major" class lifted held-out macro-F1 from 0.540 to **0.563**.
+
+**6. Evaluation and a deliberate robustness probe.** Beyond per-class precision/recall, confusion matrices, and per-scene macro-F1 on curated data, the pipeline was run on raw, unprocessed Google Earth pre/post imagery to test real-world transfer. Performance dropped clearly here — documented rather than hidden — and is discussed in *Honest limitations* below.
+
+**7. Reproducibility and ethics throughout.** Fixed seeds, leakage-free spatial splits, validation-fixed thresholds, and logged manifests support reproducibility; coordinates, scene identifiers, and city-image mappings are withheld and figures cropped/anonymised, with outputs framed as analyst-supporting decision support rather than autonomous assessment.
+
+---
 ## Results
  
 Reported as achieved, with the dissertation's aspirational targets shown for context. The targets were not reached; that is stated plainly here and discussed at length in the report.
