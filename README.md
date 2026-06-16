@@ -116,4 +116,4 @@ The code in this repository is released under the MIT License (see [`LICENSE`](L
  
 ## Acknowledgements
  
-University of Portsmouth, School of Computing — supervised by Dr. Alice Good. xBD/xView2 (Gupta et al., 2019) for the pretraining benchmark and damage taxonomy; KOlegaBB for the `damage_assessment_ukraine` dataset.
+University of Portsmouth, School of Computing — supervised by Dr. Alice Good. xBD/xView2 (Gupta et al., 2019) for the pretraining benchmark and damage taxonomy; User "KOlegaBB" for the `damage_assessment_ukraine` dataset, published on HuggingFace.
