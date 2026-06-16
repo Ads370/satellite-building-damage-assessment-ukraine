@@ -2,9 +2,7 @@
  
 A two-stage deep-learning pipeline that detects building footprints in satellite imagery and grades each building's damage on the xView2/xBD four-level scale (no-damage / minor / major / destroyed). Built as an MSc Data Analytics dissertation at the University of Portsmouth (graded **80%**), supervised by Dr. Alice Good.
  
-The pipeline pretrains on the large natural-disaster benchmark **xBD** and fine-tunes on conflict-specific imagery from three Ukrainian cities, testing how well disaster-trained models transfer to active-conflict damage.
- 
-<!-- TODO: confirm final code license (MIT assumed below). See LICENSE. -->
+The pipeline pretrains on the large natural disaster benchmark **xBD** and fine-tunes on conflict specific imagery from three Ukrainian cities, testing how well models trained on natural disaster imagery transfer to active-conflict damage.
  
 ---
  
@@ -44,7 +42,7 @@ satellite-building-damage-assessment-ukraine/
 
 An end-to-end walkthrough of the work, in the order it was carried out.
 
-**1. Framing.** The goal was a decision-support tool that produces building-level damage maps fast enough to matter in an active conflict, using the standard two-stage template from the literature (footprint segmentation, then per-building damage classification) and the xView2/xBD four-level taxonomy. Two formal targets were set up front — ≥ 0.65 mean IoU for segmentation and ≥ 0.70 macro-F1 for classification — and reported honestly against, met or not.
+**1. Framing.** The goal was a decision-support tool that produces building-level damage maps fast enough to matter in an active conflict, using the standard two-stage template from the literature (footprint segmentation, then per-building damage classification) and the xView2/xBD four-level taxonomy. Two formal targets were set up front, ≥ 0.65 mean IoU for segmentation and ≥ 0.70 macro-F1 for classification, and reported honestly against, met or not.
 
 **2. Data preparation.** Two datasets with deliberately distinct roles. **xBD** (xView2) supplied breadth for pretraining: ~850,000 annotated buildings across 19 disaster events. Polygon annotations were rasterised to binary masks (pixel-space WKT first, falling back to GeoJSON / image-space bounds), with a quality-control pass that flips rare inverted masks. **`damage_assessment_ukraine`** (KOlegaBB) supplied the conflict domain — three cities (Kamianka, Yakovlivka, Popasna), 169 segmentation tiles and 2,219 labelled building instances at ~0.33 m/px — used for fine-tuning and final evaluation. All splits were made at scene/fold level to prevent geographic leakage.
 
