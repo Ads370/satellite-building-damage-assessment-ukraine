@@ -36,9 +36,9 @@ satellite-building-damage-assessment-ukraine/
  
 **Where to start**
  
-- New here and want the results and the story → read on below.
-- Want the exact code, methodology, and run/reproduce instructions → **[`improved-assessment/`](improved-assessment/)**.
-- Want the original submission as graded (with the full report PDF) → **[`damage-assessment/`](damage-assessment/)**.
+- Description of the project and results → read on below.
+- Organized code, methodology, and run/reproduce instructions → **[`improved-assessment/`](improved-assessment/)**.
+- Original submission as graded (with the full report PDF) → **[`damage-assessment/`](damage-assessment/)**.
 ---
  
 ## Results
